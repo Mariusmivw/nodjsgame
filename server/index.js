@@ -23,6 +23,11 @@ io.on("connection", function (socket) {
 	// socket.on("{event name}", function ({parameters}) {
 	// thing to do
 	// });
+
+	socket.on("directionChange", function (newDirection) {
+		// thing to do
+		socket.broadcast.emit("directionChange", newDirection);
+	});
 });
 
 http.listen(PORT, function () {
