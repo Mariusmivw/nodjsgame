@@ -1,7 +1,13 @@
 {
+  "scripts": {
+    "start": "node ./server/index.js",
+    "debug": "nodemon ./server/index.js --config nodemon-config.json"
+  },
   "dependencies": {
     "dotenv": "^6.0.0",
     "express": "^4.16.3",
+    "nodemon": "^1.18.4",
+    "npm": "^6.4.1",
     "socket.io": "^2.1.1"
   }
 }

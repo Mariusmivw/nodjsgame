@@ -1,0 +1,28 @@
+{
+    "restartable": "rs",
+    "ignore": [
+        "*.log",
+        "npm-debug.log*",
+        ".DS_Store*",
+        ".node-persist/",
+        "build/Release",
+        "node_modules/",
+        ".npm",
+        ".eslintcache",
+        "test.js",
+        "stations.json",
+        "package-lock.json",
+        "uploads/"
+    ],
+    "verbose": false,
+    "execMap": {
+        "js": "node --harmony"
+    },
+    "watch": [
+        "."
+    ],
+    "env": {
+        "NODE_ENV": "development"
+    },
+    "ext": "js"
+}
