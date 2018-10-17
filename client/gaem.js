@@ -46,6 +46,7 @@ class Tank {
         this.prevOrientation = 0;
         this.size = 15;
         this.currentShootCooldown = 0;
+        this.hit = false;
     }
 
     update() {
@@ -163,6 +164,7 @@ class Bullet {
 
         this.lifeSpan = 60 * 4;
         this.size = 10;
+        this.temp = false;
     }
 
     update() {
@@ -179,9 +181,9 @@ class Bullet {
             this.yv = -this.yv;
         }
 
-        if (this.x - this.size / 2 < player.x + player.size / 2 && this.x + this.size / 2 > player.x - player.size / 2 &&
-            this.y - this.size / 2 < player.y + player.size / 2 && this.y + this.size / 2 > player.y + player.size / 2) {
-            console.log("death")
+        if (distance(player.x, player.y, this.x, this.y, player.size/2, this.size)) {
+            
+            player.hit = true;
         }
     }
 
@@ -225,8 +227,29 @@ class Enemy extends Tank {
     }
 }
 
+// distance check 
+function distance(x1, y1, x2, y2, r1, r2) {
+    var x = x2 - x1,
+        y = y2 - y1,
+        dist = Math.sqrt(x * x + y * y),
+        collision = false;
+
+    // check the distance against the sum of both objects radius. If its less its a hit
+    if (dist < r1 + r2) {
+        collision = true;
+    }
+
+    return collision;
+}
+
 function draw() {
-    background(175);
+    console.log(player.hit);
+    if (player.hit) {
+        background(255, 100, 100);
+        player.hit = false;
+    } else {
+        background(175);
+    }
 
     for (var i = 0; i < bullets.length; i++) {
         bullets[i].update();
