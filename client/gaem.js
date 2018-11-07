@@ -189,6 +189,10 @@ class Bullet {
         } else {
             this.left = true
         }
+        if (distance(enemy.x, enemy.y, this.x, this.y, enemy.size / 2, this.size)) {
+            if (this.left) {
+                enemy.hit = true;
+            }
     }
 
     draw() {
