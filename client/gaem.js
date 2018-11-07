@@ -165,6 +165,7 @@ class Bullet {
         this.lifeSpan = 60 * 4;
         this.size = 10;
         this.temp = false;
+        this.left = false;
     }
 
     update() {
@@ -182,8 +183,11 @@ class Bullet {
         }
 
         if (distance(player.x, player.y, this.x, this.y, player.size/2, this.size)) {
-            
-            player.hit = true;
+            if (this.left) {
+                player.hit = true;
+            }
+        } else {
+            this.left = true
         }
     }
 
