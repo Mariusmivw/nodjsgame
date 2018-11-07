@@ -10,6 +10,7 @@ var player;
 var enemy;
 var bullets = [];
 var enemyBullets = [];
+var newBullets = false;
 
 var vertMap = [
     [false, true, false, false, true],
@@ -41,9 +42,7 @@ class Tank {
         this.acc = _acc;
         this.maxSpeed = _ms;
         this.speed = 0;
-        this.prevSpeed = 0;
         this.orientation = 0;
-        this.prevOrientation = 0;
         this.size = 15;
         this.currentShootCooldown = 0;
         this.hit = false;
@@ -83,17 +82,6 @@ class Tank {
             this.speed = -this.maxSpeed / 1.5;
         }
 
-        if (this.orientation != this.prevOrientation) {
-            socket.emit("orientation change", { "orientation": this.orientation });
-        }
-
-        if (this.speed != this.prevSpeed) {
-            socket.emit("speed change", { "speed": this.speed });
-        }
-
-        this.prevOrientation = this.orientation;
-        this.prevSpeed = this.speed;
-
         // updating x and y position
         this.x += this.speed * -sin(-this.orientation);
         this.y += this.speed * -cos(-this.orientation);
@@ -125,8 +113,8 @@ class Tank {
         if (FIRE && this.currentShootCooldown == 0) {
             this.currentShootCooldown = shootCooldown;
             var b = new Bullet(this.x, this.y, this.orientation, 3);
-            socket.emit("shoot bullet", { "bullet": b });
             bullets.push(b);
+            console.log(bullets);
         }
     }
 
@@ -149,7 +137,7 @@ class Tank {
 }
 
 class Bullet {
-    constructor(_x, _y, _orientation, _speed) {
+    constructor(_x, _y, _orientation, _speed, _lifeSpan = 60 * 4, _enemyBullet = false) {
         // starting in the player tank
         this.x = _x;
         this.y = _y;
@@ -162,10 +150,18 @@ class Bullet {
         this.xv = -sin(-this.orientation) * this.speed;
         this.yv = -cos(-this.orientation) * this.speed;
 
-        this.lifeSpan = 60 * 4;
+        console.log(-this.orientation)
+        console.log(asin(sin(-this.orientation)));
+        console.log(asin(-this.xv / this.speed));
+
+        this.lifeSpan = _lifeSpan;
         this.size = 10;
         this.temp = false;
         this.left = false;
+
+        newBullets = true;
+        this.isNewBullet = true;
+        this.enemyBullet = _enemyBullet;
     }
 
     update() {
@@ -197,7 +193,7 @@ class Bullet {
 
     draw() {
         if (this.lifeSpan <= 0) {
-            bullets.shift();
+            this.enemyBullet ? enemyBullets.shift() : bullets.shift();
         }
         ellipse(this.x, this.y, this.size, this.size);
     }
@@ -251,7 +247,7 @@ function distance(x1, y1, x2, y2, r1, r2) {
 }
 
 function draw() {
-    console.log(player.hit);
+    // console.log(player.hit);
     if (player.hit) {
         background(255, 100, 100);
         player.hit = false;
@@ -264,6 +260,11 @@ function draw() {
         bullets[i].draw();
     }
 
+    for (var i = 0; i < enemyBullets.length; i++) {
+        enemyBullets[i].update();
+        enemyBullets[i].draw();
+    }
+
     player.update();
     player.draw();
 
@@ -271,73 +272,46 @@ function draw() {
         enemy.update();
         enemy.draw();
     }
-
-    if (frameCount % (60 * 2.5) == 0) {
-        socket.emit("poll position");
-    }
 }
 
-socket.on("connect", (data) => {
-    connected = true;
-    socket.emit("login");
+socket.on("ok lol", function () {
+    socket.emit("data", {
+        newBullets: getBulletData()
+    });
+    newBullets = false;
 });
 
-socket.on("connection start", (data) => {
-    peer = data.peer;
-    enemy = new Enemy();
-    socket.emit("poll position");
-    room = data.room;
-});
-
-socket.on("connection end", () => {
-    peer = "";
-    enemy = null;
-    room = "";
-});
-
-socket.on("orientation change", (data) => {
-    if (enemy !== null) {
-        enemy.orientation = data.orientation;
+socket.on("data", function (data) {
+    if (data.newBullets.length) {
+        console.log("oui");
+        for (let bullet of data.newBullets) {
+            enemyBullets.push(new Bullet(bullet.x, bullet.y, bullet.orientation, bullet.speed, bullet.lifeSpan, true));
+        }
     }
 });
 
-socket.on("speed change", (data) => {
-    if (enemy !== null) {
-        enemy.speed = data.speed;
+socket.on("left room", () => {
+    console.log("left");
+    socket.emit("leave room");
+});
+
+socket.on("room found", () => {
+    console.log("yay");
+});
+
+function getBulletData() {
+    let newBullets = [];
+    for (let bullet of bullets) {
+        if (bullet.isNewBullet) {
+            newBullets.push({
+                x: bullet.x,
+                y: bullet.y,
+                speed: bullet.speed,
+                orientation: -asin(bullet.xv / -bullet.speed),
+                lifeSpan: bullet.lifeSpan
+            });
+            bullet.isNewBullet = false;
+        }
     }
-});
-
-socket.on("shoot bullet", (data) => {
-    if (enemy !== null) {
-        var b = data.bullet;
-        bullets.push(new Bullet(b.x, b.y, b.orientation, b.speed));
-    }
-});
-
-socket.on("poll position", () => {
-    socket.emit("send position", { "x": player.x, "y": player.y, "orientation": player.orientation, "speed": player.speed });
-});
-
-socket.on("send position", (data) => {
-    enemy.x = data.x;
-    enemy.y = data.y;
-    enemy.orientation = data.orientation;
-    enemy.speed = data.speed;
-});
-
-socket.on("disconnect", (data) => {
-
-});
-
-var send_message = function (text) {
-    if (connected) {
-        socket.emit("message", { "text": text });
-    }
-}
-
-var leave_chat = function () {
-    if (connected) {
-        socket.emit("leave room");
-        room = "";
-    }
+    return newBullets;
 }
