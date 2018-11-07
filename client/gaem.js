@@ -156,6 +156,8 @@ class Bullet {
 
         this.lifeSpan = _lifeSpan;
         this.size = 10;
+        this.temp = false;
+        this.left = false;
 
         newBullets = true;
         this.isNewBullet = true;
@@ -176,9 +178,17 @@ class Bullet {
             this.yv = -this.yv;
         }
 
-        if (distance(player.x, player.y, this.x, this.y, player.size / 2, this.size)) {
-            player.hit = true;
+        if (distance(player.x, player.y, this.x, this.y, player.size/2, this.size)) {
+            if (this.left) {
+                player.hit = true;
+            }
+        } else {
+            this.left = true
         }
+        if (distance(enemy.x, enemy.y, this.x, this.y, enemy.size / 2, this.size)) {
+            if (this.left) {
+                enemy.hit = true;
+            }
     }
 
     draw() {
