@@ -25,11 +25,15 @@ var horiMap = [
     [false, true, true, false, true, false]
 ];
 
+var mapWidth = xSize / vertMap[0].length;
+
+var mapHeight = ySize / horiMap[0].length;
+
 function setup() {
     createCanvas(xSize, ySize);
     background(175);
     player = new Tank(xSize / 2, ySize / 2, 0.3, 3);
-    // enemy = new Enemy();
+    enemy = new Enemy();
     rectMode(CENTER);
     stroke(0);
     strokeWeight(1);
@@ -56,11 +60,11 @@ class Tank {
         var DOWN = (keyIsDown(DOWN_ARROW) || keyIsDown(83)) == true;
 
         if (LEFT) {
-            this.orientation -= PI / 180 * 3;
+            this.orientation = (TAU + this.orientation - (PI / 180 * 3)) % TAU;
         }
 
         if (RIGHT) {
-            this.orientation += PI / 180 * 3;
+            this.orientation = (TAU + this.orientation + (PI / 180 * 3)) % TAU;
         }
 
         if (UP) {
@@ -144,15 +148,15 @@ class Bullet {
         // giving the bullet a speed
         this.speed = _speed;
         // giving the right orientation to the bullet
-        this.orientation = _orientation;
+        this.orientation = _orientation % TAU;
 
         //calculating the x and the y components of the bullet's speed
         this.xv = -sin(-this.orientation) * this.speed;
         this.yv = -cos(-this.orientation) * this.speed;
 
-        console.log(-this.orientation)
-        console.log(asin(sin(-this.orientation)));
-        console.log(asin(-this.xv / this.speed));
+        console.log(this.orientation);
+        console.log(-acos(cos(this.orientation)));
+        console.log(-acos(-this.yv / this.speed));
 
         this.lifeSpan = _lifeSpan;
         this.size = 10;
@@ -178,17 +182,18 @@ class Bullet {
             this.yv = -this.yv;
         }
 
-        if (distance(player.x, player.y, this.x, this.y, player.size/2, this.size)) {
+        if (distance(player.x, player.y, this.x, this.y, player.size / 2, this.size / 2)) {
             if (this.left) {
                 player.hit = true;
             }
         } else {
             this.left = true
         }
-        if (distance(enemy.x, enemy.y, this.x, this.y, enemy.size / 2, this.size)) {
+        if (distance(enemy.x, enemy.y, this.x, this.y, enemy.size / 2, this.size / 2)) {
             if (this.left) {
                 enemy.hit = true;
             }
+        }
     }
 
     draw() {
