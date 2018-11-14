@@ -25,12 +25,12 @@ let horiMap = [
   [false, true, true, false, true, false]
 ];
 
-let mapWidth = xSize / vertMap[0].length;
-let mapHeight = ySize / horiMap[0].length;
+let mapWidth = xSize / (vertMap[0].length + 1);
+let mapHeight = xSize / (vertMap[0].length + 1);
 
 function setup() {
   createCanvas(xSize, ySize);
-  background(175);
+  background(255);
   player = new Tank(xSize / 2, ySize / 2, 0.3, 3);
   enemy = new Enemy();
   rectMode(CENTER);
@@ -136,7 +136,6 @@ class Tank {
     rect(0, -this.size / 2, this.size * 0.3, this.size * 0.8);
 
     pop();
-    rect(0, 0, this.size, this.size);
   }
 }
 
@@ -275,19 +274,41 @@ function draw() {
     background(255, 100, 100);
     player.hit = false;
   } else {
-    background(175);
+    background(255);
   }
+
+  push();
+  noFill();
+  strokeWeight(2);
+  rectMode(CORNER);
+  rect(1, 1, xSize - 2, vertMap.length * mapHeight - 1);
 
   for (let i = 0; i < vertMap.length; i++) {
     for (let j = 0; j < vertMap[i].length; j++) {
-      line(
-        i * mapHeight,
-        j * mapWidth,
-        i * mapHeight,
-        (j + 1) * mapWidth
-      );
+      if (vertMap[i][j]) {
+        line(
+          (j + 1) * mapWidth,
+          (i - 0) * mapHeight,
+          (j + 1) * mapWidth,
+          (i + 1) * mapHeight
+        );
+      }
     }
   }
+
+  for (let i = 0; i < horiMap.length; i++) {
+    for (let j = 0; j < horiMap[i].length; j++) {
+      if (horiMap[i][j]) {
+        line(
+          (j) * mapWidth,
+          (i + 1) * mapHeight,
+          (j + 1) * mapWidth,
+          (i + 1) * mapHeight
+        );
+      }
+    }
+  }
+  pop();
 
   for (let i = 0; i < bullets.length; i++) {
     bullets[i].update();
@@ -302,10 +323,10 @@ function draw() {
   player.update();
   player.draw();
 
-  if (enemy) {
-    enemy.update();
-    enemy.draw();
-  }
+  // if (enemy) {
+  //   enemy.update();
+  //   enemy.draw();
+  // }
 }
 
 socket.on("ok lol", function () {
