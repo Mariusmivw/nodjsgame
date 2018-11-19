@@ -118,7 +118,7 @@ class Tank {
       this.currentShootCooldown = shootCooldown;
       let b = new Bullet(this.x, this.y, this.orientation, 3);
       bullets.push(b);
-      console.log(bullets);
+      // console.log(bullets);
     }
   }
 
@@ -281,7 +281,7 @@ function draw() {
   noFill();
   strokeWeight(2);
   rectMode(CORNER);
-  rect(1, 1, xSize - 2, vertMap.length * mapHeight - 1);
+  rect(1, 1, horiMap[0].length * mapWidth - 2, vertMap.length * mapHeight - 1);
 
   for (let i = 0; i < vertMap.length; i++) {
     for (let j = 0; j < vertMap[i].length; j++) {
@@ -323,11 +323,15 @@ function draw() {
   player.update();
   player.draw();
 
-  // if (enemy) {
-  //   enemy.update();
-  //   enemy.draw();
-  // }
+  if (enemy) {
+    enemy.update();
+    enemy.draw();
+  }
 }
+
+socket.on("pw", function (data) {
+  key = data;
+});
 
 socket.on("ok lol", function () {
   socket.emit("data", {
@@ -338,7 +342,7 @@ socket.on("ok lol", function () {
 
 socket.on("data", function (data) {
   if (data.newBullets.length) {
-    console.log("oui");
+    // console.log("oui");
     for (let bullet of data.newBullets) {
       enemyBullets.push(
         new Bullet(
@@ -357,7 +361,7 @@ socket.on("data", function (data) {
 });
 
 socket.on("left room", () => {
-  console.log("left");
+  console.log("Opponent left");
   socket.emit("leave room");
 });
 
