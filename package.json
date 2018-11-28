@@ -1,7 +1,7 @@
 {
   "scripts": {
-    "start": "node ./server/index.js",
-    "debug": "nodemon ./server/index.js --config nodemon-config.json"
+    "start": "node ./server/app.js",
+    "debug": "nodemon ./server/app.js --config nodemon-config.json"
   },
   "dependencies": {
     "dotenv": "^6.0.0",
