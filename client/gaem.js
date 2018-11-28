@@ -20,8 +20,7 @@ let horiMap = [
     [false, true, true, false, true, false]
 ];
 
-let mapWidth = xSize / (vertMap[0].length + 1);
-let mapHeight = xSize / (vertMap[0].length + 1);
+let wallSpacing = Math.min(xSize / horiMap[0].length, ySize / vertMap.length);
 
 function setup() {
     createCanvas(xSize, ySize);
@@ -31,7 +30,6 @@ function setup() {
     rectMode(CENTER);
     stroke(0);
     strokeWeight(1);
-    frameRate(15);
 }
 
 class Tank {
@@ -177,13 +175,13 @@ class Bullet {
         this.lifeSpan--;
 
         //collision with the edge of the map
-        if (this.x < this.size / 2 || this.x > xSize - this.size / 2) {
+        if (this.x < this.size / 2 || this.x > wallSpacing * horiMap[0].length - this.size / 2) {
             this.xv = -this.xv;
         }
-
-        if (this.y < this.size / 2 || this.y > ySize - this.size / 2) {
+        if (this.y < this.size / 2 || this.y > wallSpacing * vertMap.length - this.size / 2) {
             this.yv = -this.yv;
         }
+
         //collision with the map
         for (let i = 0; i < horiMap.length; i++) {
             const row = horiMap[i];
@@ -192,28 +190,28 @@ class Bullet {
                 if (isLine) {
                     if (!row[j - 1] &&
                         collidePointCircle(
-                            (j) * mapWidth,
-                            (i + 1) * mapHeight,
+                            (j + 0) * wallSpacing,
+                            (i + 1) * wallSpacing,
                             this.x,
                             this.y,
                             this.size
                         ) &&
-                        (j) * mapWidth - this.x > abs((i + 1) * mapHeight - this.y)) {
+                        (j) * wallSpacing - this.x > abs((i + 1) * wallSpacing - this.y)) {
                         this.xv *= -1;
                     } else if (!row[j + 1] &&
                         collidePointCircle(
-                            (j + 1) * mapWidth,
-                            (i + 1) * mapHeight,
+                            (j + 1) * wallSpacing,
+                            (i + 1) * wallSpacing,
                             this.x,
                             this.y,
                             this.size
-                        ) && (j + 1) * mapWidth - this.x < -abs((i + 1) * mapHeight - this.y)) {
+                        ) && (j + 1) * wallSpacing - this.x < -abs((i + 1) * wallSpacing - this.y)) {
                         this.xv *= -1;
                     } else if (collideLineCircle(
-                            (j) * mapWidth,
-                            (i + 1) * mapHeight,
-                            (j + 1) * mapWidth,
-                            (i + 1) * mapHeight,
+                            (j + 0) * wallSpacing,
+                            (i + 1) * wallSpacing,
+                            (j + 1) * wallSpacing,
+                            (i + 1) * wallSpacing,
                             this.x,
                             this.y,
                             this.size
@@ -231,26 +229,26 @@ class Bullet {
                 const isLine = column[j];
                 if (isLine) {
                     if (!column[j - 1] && collidePointCircle(
-                            (j + 1) * mapWidth,
-                            (i - 0) * mapHeight,
+                            (j + 1) * wallSpacing,
+                            (i + 0) * wallSpacing,
                             this.x,
                             this.y,
                             this.size
                         )) {
                         this.yv *= -1;
                     } else if (!column[j + 1] && collidePointCircle(
-                            (j + 1) * mapWidth,
-                            (i + 1) * mapHeight,
+                            (j + 1) * wallSpacing,
+                            (i + 1) * wallSpacing,
                             this.x,
                             this.y,
                             this.size
                         )) {
                         this.yv *= -1;
                     } else if (collideLineCircle(
-                            (j + 1) * mapWidth,
-                            (i - 0) * mapHeight,
-                            (j + 1) * mapWidth,
-                            (i + 1) * mapHeight,
+                            (j + 1) * wallSpacing,
+                            (i + 0) * wallSpacing,
+                            (j + 1) * wallSpacing,
+                            (i + 1) * wallSpacing,
                             this.x,
                             this.y,
                             this.size
@@ -356,16 +354,16 @@ function draw() {
     noFill();
     strokeWeight(2);
     rectMode(CORNER);
-    rect(1, 1, horiMap[0].length * mapWidth - 2, vertMap.length * mapHeight - 1);
+    rect(1, 1, horiMap[0].length * wallSpacing - 2, vertMap.length * wallSpacing - 1);
 
     for (let i = 0; i < vertMap.length; i++) {
         for (let j = 0; j < vertMap[i].length; j++) {
             if (vertMap[i][j]) {
                 line(
-                    (j + 1) * mapWidth,
-                    (i - 0) * mapHeight,
-                    (j + 1) * mapWidth,
-                    (i + 1) * mapHeight
+                    (j + 1) * wallSpacing,
+                    (i - 0) * wallSpacing,
+                    (j + 1) * wallSpacing,
+                    (i + 1) * wallSpacing
                 );
             }
         }
@@ -375,10 +373,10 @@ function draw() {
         for (let j = 0; j < horiMap[i].length; j++) {
             if (horiMap[i][j]) {
                 line(
-                    (j) * mapWidth,
-                    (i + 1) * mapHeight,
-                    (j + 1) * mapWidth,
-                    (i + 1) * mapHeight
+                    (j) * wallSpacing,
+                    (i + 1) * wallSpacing,
+                    (j + 1) * wallSpacing,
+                    (i + 1) * wallSpacing
                 );
             }
         }
