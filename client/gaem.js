@@ -300,31 +300,7 @@ class Enemy extends Tank {
         super(_x, _y, 0.3, 3);
     }
 
-    update() {
-        this.x += this.speed * -sin(-this.orientation);
-        this.y += this.speed * -cos(-this.orientation);
-
-        //collision
-        //right
-        if (this.x < this.size / 2) {
-            this.x = this.size / 2;
-        }
-
-        //left
-        if (this.x > xSize - this.size / 2) {
-            this.x = xSize - this.size / 2;
-        }
-
-        //top
-        if (this.y < this.size / 2) {
-            this.y = this.size / 2;
-        }
-
-        //bottom
-        if (this.y > ySize - this.size / 2) {
-            this.y = ySize - this.size / 2;
-        }
-    }
+    update() {}
 }
 
 // distance check

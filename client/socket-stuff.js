@@ -6,7 +6,12 @@ socket.on("pw", function (data) {
 
 socket.on("ok lol", function () {
 	socket.emit("data", {
-		newBullets: getBulletData()
+		newBullets: getBulletData(),
+		tankData: {
+			x: player.x,
+			y: player.y,
+			orientation: player.orientation
+		}
 	});
 	newBullets = false;
 });
@@ -29,6 +34,9 @@ socket.on("data", function (data) {
 			);
 		}
 	}
+	enemy.x = data.tankData.x;
+	enemy.y = data.tankData.y;
+	enemy.orientation = data.tankData.orientation;
 });
 
 socket.on("left room", () => {
