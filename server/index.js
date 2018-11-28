@@ -5,6 +5,7 @@ const http = require("http").Server(app);
 const io = require("socket.io")(http);
 const PORT = process.env.PORT || 8000;
 const CONSOLE_KEY = process.env.CONSOLE_KEY || undefined;
+console.log(CONSOLE_KEY);
 
 let socketQueue = [];
 let rooms = {};
