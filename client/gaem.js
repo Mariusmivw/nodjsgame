@@ -190,7 +190,7 @@ class Bullet {
             for (let j = 0; j < row.length; j++) {
                 const isLine = row[j];
                 if (isLine) {
-                    if (row[j - 1] !== false &&
+                    if (!row[j - 1] &&
                         collidePointCircle(
                             (j) * mapWidth,
                             (i + 1) * mapHeight,
@@ -198,9 +198,9 @@ class Bullet {
                             this.y,
                             this.size
                         ) &&
-                        (j) * mapWidth - this.x < abs((i + 1) * mapHeight - this.y)) {
+                        (j) * mapWidth - this.x > abs((i + 1) * mapHeight - this.y)) {
                         this.xv *= -1;
-                    } else if (row[j + 1] !== false &&
+                    } else if (!row[j + 1] &&
                         collidePointCircle(
                             (j + 1) * mapWidth,
                             (i + 1) * mapHeight,
@@ -209,8 +209,7 @@ class Bullet {
                             this.size
                         ) && (j + 1) * mapWidth - this.x < -abs((i + 1) * mapHeight - this.y)) {
                         this.xv *= -1;
-                    }
-                    if (collideLineCircle(
+                    } else if (collideLineCircle(
                             (j) * mapWidth,
                             (i + 1) * mapHeight,
                             (j + 1) * mapWidth,
@@ -231,7 +230,7 @@ class Bullet {
             for (let j = 0; j < column.length; j++) {
                 const isLine = column[j];
                 if (isLine) {
-                    if (column[j - 1] && collidePointCircle(
+                    if (!column[j - 1] && collidePointCircle(
                             (j + 1) * mapWidth,
                             (i - 0) * mapHeight,
                             this.x,
@@ -239,7 +238,7 @@ class Bullet {
                             this.size
                         )) {
                         this.yv *= -1;
-                    } else if (column[j + 1] && collidePointCircle(
+                    } else if (!column[j + 1] && collidePointCircle(
                             (j + 1) * mapWidth,
                             (i + 1) * mapHeight,
                             this.x,
