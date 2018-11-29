@@ -6,7 +6,7 @@ let password = "";
 let key = undefined;
 
 window.onkeydown = (e) => {
-	if (!password.replace("undefined", "").includes(key)) {
+	if (!password.replace("undefined", "").includes(key.toLowerCase())) {
 		password += e.key.toLowerCase();
 	}
 }
@@ -14,13 +14,12 @@ window.onkeydown = (e) => {
 const r = /./;
 r.toString = function () {
 	console.log("prevent?");
-	if (!password.replace("undefined", "").includes(key)) {
+	if (!password.replace("undefined", "").includes(key.toLowerCase())) {
 		window.open(window.location.href);
 		let input = prompt("It seems you have the devtools open, and you know we cannot have that!\nPlease input the dev-key to continue:", "");
 		if (input !== key) {
 			if (window.history.length > 1) {
 				window.history.back();
-				// console.log(input);
 			} else {
 				window.close();
 			}
