@@ -183,83 +183,20 @@ class Bullet {
         }
 
         //collision with the map
-        for (let i = 0; i < horiMap.length; i++) {
-            const row = horiMap[i];
-            for (let j = 0; j < row.length; j++) {
-                const isLine = row[j];
-                if (isLine) {
-                    if (!row[j - 1] &&
-                        collidePointCircle(
-                            (j + 0) * wallSpacing,
-                            (i + 1) * wallSpacing,
-                            this.x,
-                            this.y,
-                            this.size
-                        ) &&
-                        (j) * wallSpacing - this.x > abs((i + 1) * wallSpacing - this.y)) {
-                        this.xv *= -1;
-                    } else if (!row[j + 1] &&
-                        collidePointCircle(
-                            (j + 1) * wallSpacing,
-                            (i + 1) * wallSpacing,
-                            this.x,
-                            this.y,
-                            this.size
-                        ) && (j + 1) * wallSpacing - this.x < -abs((i + 1) * wallSpacing - this.y)) {
-                        this.xv *= -1;
-                    } else if (collideLineCircle(
-                            (j + 0) * wallSpacing,
-                            (i + 1) * wallSpacing,
-                            (j + 1) * wallSpacing,
-                            (i + 1) * wallSpacing,
-                            this.x,
-                            this.y,
-                            this.size
-                        )) {
-                        this.yv *= -1;
-                        break;
-                    }
-
-                }
+        collideHoriMap(this.x, this.y, this.size, (collideLeft, collideRight, collideWall) => {
+            if (collideLeft || collideRight) {
+                this.xv *= -1;
+            } else if (collideWall) {
+                this.yv *= -1;
             }
-        }
-        for (let i = 0; i < vertMap.length; i++) {
-            const column = vertMap[i];
-            for (let j = 0; j < column.length; j++) {
-                const isLine = column[j];
-                if (isLine) {
-                    if (!column[j - 1] && collidePointCircle(
-                            (j + 1) * wallSpacing,
-                            (i + 0) * wallSpacing,
-                            this.x,
-                            this.y,
-                            this.size
-                        )) {
-                        this.yv *= -1;
-                    } else if (!column[j + 1] && collidePointCircle(
-                            (j + 1) * wallSpacing,
-                            (i + 1) * wallSpacing,
-                            this.x,
-                            this.y,
-                            this.size
-                        )) {
-                        this.yv *= -1;
-                    } else if (collideLineCircle(
-                            (j + 1) * wallSpacing,
-                            (i + 0) * wallSpacing,
-                            (j + 1) * wallSpacing,
-                            (i + 1) * wallSpacing,
-                            this.x,
-                            this.y,
-                            this.size
-                        )) {
-                        this.xv *= -1;
-                        break;
-                    }
-
-                }
+        });
+        collideVertMap(this.x, this.y, this.size, (collideUp, collideDown, collideWall) => {
+            if (collideUp || collideDown) {
+                this.yv *= -1;
+            } else if (collideWall) {
+                this.xv *= -1;
             }
-        }
+        });
 
         //collision with the player
         if (
@@ -316,6 +253,78 @@ function distance(x1, y1, x2, y2, r1, r2) {
     }
 
     return collision;
+}
+
+function collideHoriMap(x, y, r, callback) {
+    for (let i = 0; i < horiMap.length; i++) {
+        const row = horiMap[i];
+        let shouldBreak = false;
+        for (let j = 0; j < row.length; j++) {
+            const isLine = row[j];
+            if (isLine) {
+                if (!row[j - 1] && collidePointCircle((j + 0) * wallSpacing, (i + 1) * wallSpacing, x, y, r) && (j + 0) * wallSpacing - x > abs((i + 1) * wallSpacing - y)) {
+                    if (!VertMap(i, j - 1) && !VertMap(i + 1, j - 1)) {
+                        callback(true, false, false);
+                    }
+                } else if (!row[j + 1] && collidePointCircle((j + 1) * wallSpacing, (i + 1) * wallSpacing, x, y, r) && (j + 1) * wallSpacing - x < -abs((i + 1) * wallSpacing - y)) {
+                    if (!VertMap(i, j) && !VertMap(i + 1, j)) {
+                        callback(false, true, false);
+                    }
+                } else if (collideLineCircle((j + 0) * wallSpacing, (i + 1) * wallSpacing, (j + 1) * wallSpacing, (i + 1) * wallSpacing, x, y, r)) {
+                    callback(false, false, true);
+                    shouldBreak = true;
+                    break;
+                }
+            }
+        }
+        if (shouldBreak) {
+            break;
+        }
+    }
+}
+
+function collideVertMap(x, y, r, callback) {
+    for (let i = 0; i < vertMap.length; i++) {
+        const column = vertMap[i];
+        let shouldBreak = false;
+        for (let j = 0; j < column.length; j++) {
+            const isLine = column[j];
+            if (isLine) {
+                if (!column[j - 1] && collidePointCircle((j + 1) * wallSpacing, (i + 0) * wallSpacing, x, y, r)) {
+                    if (!HoriMap(i - 1, j) && !HoriMap(i - 1, j + 1)) {
+                        callback(true, false, false);
+                    }
+                } else if (!column[j + 1] && collidePointCircle((j + 1) * wallSpacing, (i + 1) * wallSpacing, x, y, r)) {
+                    if (!HoriMap(i, j) && !HoriMap(i, j + 1)) {
+                        callback(false, true, false);
+                    }
+                } else if (collideLineCircle((j + 1) * wallSpacing, (i + 0) * wallSpacing, (j + 1) * wallSpacing, (i + 1) * wallSpacing, x, y, r)) {
+                    callback(false, false, true);
+                    shouldBreak = true;
+                    break;
+                }
+            }
+        }
+        if (shouldBreak) {
+            break;
+        }
+    }
+}
+
+function HoriMap(x, y) {
+    try {
+        return horiMap[x][y];
+    } catch (e) {
+        return undefined;
+    }
+}
+
+function VertMap(x, y) {
+    try {
+        return vertMap[x][y];
+    } catch (e) {
+        return undefined;
+    }
 }
 
 function draw() {
